@@ -2,6 +2,9 @@
 require 'spec_helper'
 
 describe "Static pages" do
+  let (:title) {"Ruby on Rails Tutorial Sample App | "}
+
+
   # Below is decribing the home page and what it should contain
   describe "Home page" do
     # The 'it' line describes to readers what the page should have, it is irrelevent
@@ -15,9 +18,16 @@ describe "Static pages" do
     #Checks that the home page has the approprite title, checks the contents inside 
     #of  the <title> tag. have_title checks substring so the title does no have to 
     #be an exact match
-    it "should have the title 'Home'" do
+    it "should have the base title" do
       visit '/static_pages/home'
-      expect(page).to have_title("Ruby on Rails Tutorial Sample App | Home")
+      expect(page).to have_title("Ruby on Rails Tutorial Sample App")
+    end
+
+    #Making sure the title is not a custom one, we are using substrings
+    #for this test case 
+    it "should not have a custom title" do
+      visit '/static_pages/home'
+      expect(page).not_to have_title('| Home')
     end
   end
 
@@ -31,7 +41,7 @@ describe "Static pages" do
 
     it "should have the title 'Help'" do
       visit '/static_pages/help'
-      expect(page).to have_title("Ruby on Rails Tutorial Sample App | Help")
+      expect(page).to have_title("#{title}Help")
     end
   end 
 
@@ -44,7 +54,19 @@ describe "Static pages" do
 
     it "should have the title 'About'" do
       visit '/static_pages/about'
-      expect(page).to have_title("Ruby on Rails Tutorial Sample App | About")
+      expect(page).to have_title("#{title}About")
     end
   end 
+
+  describe 'Contact page' do
+    it "should have the content 'Contact" do
+      visit '/static_pages/contact'
+      expect(page).to have_content('Contact')
+    end
+
+    it "should have the title 'Contact'" do
+      visit '/static_pages/contact'
+      expect(page).to have_title("#{title}Contact")
+    end
+  end
 end
