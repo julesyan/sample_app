@@ -14,8 +14,17 @@
 <body>
 	<%= render 'layouts/header' %>
 	<div class="container">
+        <!-- Iterate though each value in the flash and show it. Each different
+        type of message is given a class name based on what the alert is (i.e.
+        a success flash message would have the class "alert-success"). This 
+        variable is available everywhere-->
+        <% flash.each do |key, value| %>
+            <div class="alert alert-<%= key %>"><%= value %></div>
+        <% end %>
 		<%= yield %>
 		<%= render 'layouts/footer' %>
+    <!--Used for debugging the page-->
+    <%= debug(params) if Rails.env.development? %>
 	</div>
 </body>
 </html>

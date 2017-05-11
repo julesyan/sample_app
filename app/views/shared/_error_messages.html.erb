@@ -1,0 +1,15 @@
+<!-- Checks to make sure there are error messages to even display-->
+<% if @user.errors.any? %>
+    <div id="error_explanation">
+        <div class="alert alert-error">
+            <!-- Makes the word plural if there is more than on error-->
+            The form contains <%= pluralize(@user.errors.count, "error") %>.
+        </div>
+        <!-- Goes through each of the messages generated and displays them-->
+        <ul>
+            <% @user.errors.full_messages.each do |msg| %>
+            <li>* <%= msg %></li>
+            <% end %>
+        </ul>
+    </div>
+<% end %>

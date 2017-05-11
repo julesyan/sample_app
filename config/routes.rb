@@ -1,5 +1,9 @@
 SampleApp::Application.routes.draw do
-  get "users/new"
+  # This will allow us to access the users in a REST-style way (/user/#) 
+  # which includes the /user/new
+  resources :users
+  #get "users/new"
+
   #This requests the URL 'static_pages/home' which corresponds ot hte home action from StaticPages
   #We use 'get' because we want to use the GET protocol
   #get "static_pages/home"

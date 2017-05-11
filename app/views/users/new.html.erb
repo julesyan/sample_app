@@ -1,3 +1,33 @@
 <% provide(:title, 'Sign up') %>
 <h1>Sign up</h1>
-<p>Find me in app/views/users/new.html.erb</p>
+
+<div class="row">
+  <div class="span6 offset3">
+  	<!--form_for method creates a form based off of a Active Record.
+  		f is the form and each f.something returns the approrprite field
+  		code for that attribute with the given information. THe type of
+  		field is done with the .something. The name values are the special
+  		things fenerated from useing form_for. They allow Rails to create
+  		an initlization hash (via params variable) so that it will create
+  		a new user in @user. Will also automatically generate the form tag 
+  		which knows will be a new User (hence the class="new_user") and 
+  		and will have it automatically send as a post to /users-->
+    <%= form_for(@user) do |f| %>
+    	<!-- This render will get the error messages from the obejct if there is any -->
+      <%= render 'shared/error_messages' %>
+      <%= f.label :name %>
+      <%= f.text_field :name %>
+
+      <%= f.label :email %>
+      <%= f.text_field :email %>
+
+      <%= f.label :password %>
+      <%= f.password_field :password %>
+
+      <%= f.label :password_confirmation, "Confirmation" %>
+      <%= f.password_field :password_confirmation %>
+
+      <%= f.submit "Create my account", class: "btn btn-large btn-primary" %>
+    <% end %>
+  </div>
+</div>

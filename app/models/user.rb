@@ -5,8 +5,10 @@ class User < ActiveRecord::Base
 	before_save { self.email = email.downcase }
 
 	# Below is the regex for a valid email. The variable is a constant (is all
-	# caps)
-	VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+	# caps). The grouping of (?:\.[a-z\d\-]+)* has ? which means 0 or one of
+	# the dot then one or more of any character (that is not a dot) within 
+	# the group where th group matches one or more times
+	VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(?:\.[a-z\d\-]+)*\.[a-z]+\z/i
 
 	# Function which validates the precense of the attributes, presence is an
 	# optional hash. Must pass this validation if we want to save this object.

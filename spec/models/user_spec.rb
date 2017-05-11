@@ -49,7 +49,7 @@ describe User do
   	it "should be invalid" do 
   		# The addresses listed below are invalid
   		addresses = %w[user@foo,com user_at_foo.org example.user@foo. 
-  			foo@bar_baz.com foo@bar+baz.com]
+  			foo@bar_baz.com foo@bar+baz.com foo@bar..com]
   		# Go though each of the addresses in the array created
   		addresses.each do |invalid_address|
   			@user.email = invalid_address
@@ -85,6 +85,18 @@ describe User do
   	# We want the @user to be invalid because we already have a duplicate 
   	# of it from the before section
   	it { should_not be_valid }
+  end
+
+  # Exercise 6.5.1: testing that email is downcased
+  describe "email address with mixed case" do
+    let(:mixed_case_email) { "Foo@ExAMPle.CoM" }
+
+    # Save the email and then comare it to the version in the database
+    it "should be saved as all lower-case" do
+      @user.email = mixed_case_email
+      @user.save
+      expect(@user.reload.email).to eq mixed_case_email.downcase
+    end
   end
 
   # Check that hte password is present
