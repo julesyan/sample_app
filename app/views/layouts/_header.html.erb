@@ -6,7 +6,31 @@
         <ul class="nav pull-right">
           <li><%= link_to "Home",    root_path %></li>
           <li><%= link_to "Help",    help_path %></li>
-          <li><%= link_to "Sign in", '#' %></li>
+          <!-- We must first check to see if we are even signed in-->
+          <% if signed_in? %>
+            <!-- If we are signed in, display their pages -->
+            <li><%= link_to "Users", '#' %></li>
+            <!-- There are Bootstrap id and classes to make a nice dropdown-->
+            <li id="fat-menu" class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Account <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <!-- We can link to current_user because Rails automatically 
+                     converts it to uesr_path(current_user) since that is how
+                     linking to that page is done -->
+                <li><%= link_to "Profile", current_user %></li>
+                <li><%= link_to "Settings", '#' %></li>
+                <li class="divider"></li>
+                <li>
+                  <%= link_to "Sign out", signout_path, method: "delete" %>
+                </li>
+              </ul>
+            </li>
+          <!-- There is no oen signed in, so must sign user in -->
+          <% else %>
+            <li><%= link_to "Sign in", signin_path %></li>
+          <% end %>
         </ul>
       </nav>
     </div>

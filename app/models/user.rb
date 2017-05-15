@@ -4,6 +4,13 @@ class User < ActiveRecord::Base
 	# callback function that is caleld during a certain point in the record
 	before_save { self.email = email.downcase }
 
+	# Before we create a new user we must create a remember token so that there
+	# is one since we can't rely on the application signing in the user after
+	# creating a user
+	# This is a method reference. Looks for a method with the indicated name 
+	# and run it. This is the preferred method instead of the explicit block
+	before_create :create_remember_token
+
 	# Below is the regex for a valid email. The variable is a constant (is all
 	# caps). The grouping of (?:\.[a-z\d\-]+)* has ? which means 0 or one of
 	# the dot then one or more of any character (that is not a dot) within 
@@ -42,4 +49,28 @@ class User < ActiveRecord::Base
 	# function below does too much so we will not be using it, but can be used)
 	has_secure_password
 	###########################################################
+
+	# The below methods are public because we need ot use them outside of just
+	# this class. 
+	# This method creates the random token
+	def User.new_remember_token
+		SecureRandom.urlsafe_base64
+	end
+
+	# This method hashes the token. It uses a different hashing program than
+	# the passwords since it runs on every page run. (Uses SHA1)
+	def User.digest(token)
+		Digest::SHA1.hexdigest(token.to_s)
+	end
+
+	# Below is all the methods which are private and only used by this class
+	# since they are automatically hidden from any other class. If we try to
+	# use it outside of this class then will raise a NoMethodError
+	private
+		# This method is for creating a remember token
+		def create_remember_token
+			# The digest and new_remember_token are part of the User class
+			# and dont need an object for it to run
+			self.remember_token = User.digest(User.new_remember_token)
+		end
 end

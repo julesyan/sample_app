@@ -16,6 +16,7 @@ describe User do
   it { should respond_to(:password_digest) }
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
+  it {should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
 
   # Checking that the object @user is actually valid (and that we have not
@@ -144,4 +145,12 @@ describe User do
       specify { expect(user_for_invalid_password).to be_false }
     end
   end
+
+  # Save a new user and check to make sure that there is a token
+  describe "remember token" do
+    before { @user.save }
+    # its is similar to it but applies ot the attribute of hte subject rather
+    # than the subject indicated
+    its(:remember_token) { should_not be_blank }
+  end 
 end

@@ -4,6 +4,11 @@ SampleApp::Application.routes.draw do
   resources :users
   #get "users/new"
 
+  # This will define new routes for the sessions (sign in and out sessions). 
+  # This will restrict us to new, create and destroy since we dont want any 
+  # other actions
+  resources :sessions, only: [:new, :create, :destroy]
+
   #This requests the URL 'static_pages/home' which corresponds ot hte home action from StaticPages
   #We use 'get' because we want to use the GET protocol
   #get "static_pages/home"
@@ -11,7 +16,11 @@ SampleApp::Application.routes.draw do
   #get "static_pages/about"
   #get "static_pages/contact"
   root 'static_pages#home'
-  match '/signup', to: 'users#new', via: 'get'
+  match '/signup',  to: 'users#new',            via: 'get'
+  match '/signin',  to: 'sessions#new',         via: 'get'
+  # This one is delete because we are signing out and thus invoking a HTTP 
+  # DELETE request
+  match '/signout', to: 'sessions#destroy',     via: 'delete'
   match '/help', to: 'static_pages#help', via: 'get'
   match '/about', to: 'static_pages#about', via: 'get'
   match '/contact', to: 'static_pages#contact', via: 'get'

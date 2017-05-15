@@ -15,7 +15,7 @@ class UsersController < ApplicationController
 
 	# Since we are using the REST URLs then this will be called when creating
 	# a new user with the POST request (the form knows to send as /users with
-	# POST)
+	# POST). 
 	def create 
 		# Saves the new user model object created when submitting the form
 		# and the name attribute of each input tag is the attributes to the
@@ -28,6 +28,7 @@ class UsersController < ApplicationController
 		if @user.save
 			# We saved successfully (save returns true if successful). Go to
 			# the user's page
+			sign_in @user
 			flash[:success] = "Welcome to the Sample App!"
 			redirect_to @user
 		else
