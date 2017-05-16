@@ -54,6 +54,14 @@ module SessionsHelper
 		user == current_user
 	end
 
+	# If the user is not signed in, redirect the user to sign in
+	def signed_in_user
+		unless signed_in?
+			store_location
+			redirect_to signin_url, notice: "Please sign in."
+		end
+	end
+
 	# To sign a user out, first we change the token (because the cookie could
 	# have been stolen and can currently still be used to authorize someone),
 	# then we use the delete function to delete the cookie from the user's 

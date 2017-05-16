@@ -18,12 +18,24 @@ describe "User pages" do
 		# use FactoryGirl to do this where the declaration of the :user symb
 		# as a User model object is done. This is a user factor
 		let(:user) { FactoryGirl.create(:user) }
+
+		# Creating the posts for this user
+		let!(:m1) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
+    	let!(:m2) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
+
 		# This vistsis the path wit hthe givin user. 
 		before { visit user_path(user) }
 
 		# make sure this is the right user by checking the names match up 
 		it { should have_content(user.name) } 
 		it { should have_title(user.name) }
+
+		# Checking the microposts exist on the page
+		describe "microposts" do
+	      it { should have_content(m1.content) }
+	      it { should have_content(m2.content) }
+	      it { should have_content(user.microposts.count) }
+	    end
 	end
 
 	describe "signup" do

@@ -1,4 +1,9 @@
 class User < ActiveRecord::Base
+	# Creates the association between the user and all their microposts
+	# The dependent allows for the micropsots that belong ot hte user be
+	# destroyed alongside the user being destroyed
+	has_many :microposts, dependent: :destroy
+
 	# Makes the email all lower case before saving to the database because
 	# not all databases use case sensitive indices. This function is a spcial
 	# callback function that is caleld during a certain point in the record
@@ -61,6 +66,13 @@ class User < ActiveRecord::Base
 	# the passwords since it runs on every page run. (Uses SHA1)
 	def User.digest(token)
 		Digest::SHA1.hexdigest(token.to_s)
+	end
+
+	def feed
+		# This is preliminary. See "Following users" for the full implementation.
+		# This will escape the variable injected into the SQL which is what
+		# we should always do when inserting variables into SQL
+		Micropost.where("user_id = ?", id)
 	end
 
 	# Below is all the methods which are private and only used by this class

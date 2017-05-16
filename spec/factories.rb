@@ -20,6 +20,7 @@
 #end
 
 FactoryGirl.define do
+  # Create a user
   factory :user do
     sequence(:name)  { |n| "Person #{n}" }
     sequence(:email) { |n| "person_#{n}@example.com"}
@@ -29,5 +30,15 @@ FactoryGirl.define do
     factory :admin do
       admin true
     end
+  end
+
+  # Create a micropost, used:
+  #   FactoryGirl.create(:micropsot, user: @user, created_at: <some date>)
+  # Reminder: time is done by #.day.ago or #.hour.ago etc
+  # We create the times manually (active REcord doesn't allow this since it
+  # sets it themselves)
+  factory :micropost do
+    content "Lorem ipsum"
+    user
   end
 end

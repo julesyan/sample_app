@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+# Tests that require authentication and actions that needs certain 
+# authentication before hand before performing an action 
 describe "Authentication" do
 
 	subject { page }
@@ -127,6 +129,20 @@ describe "Authentication" do
 					it { should have_title('Sign in') }
 				end
 		    end
+
+		    # If we are no signed in, then we should not be allowed to create
+		    # posts for the user
+		    describe "in the Microposts controller" do
+				describe "submitting to the create action" do
+					before { post microposts_path }
+					specify { expect(response).to redirect_to(signin_path) }
+				end
+
+				describe "submitting to the destroy action" do
+					before { delete micropost_path(FactoryGirl.create(:micropost)) }
+					specify { expect(response).to redirect_to(signin_path) }
+				end
+			end
     	end
 
     	# Checking we can only edit hte pages of a correct user

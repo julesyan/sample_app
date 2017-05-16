@@ -60,6 +60,27 @@ describe "Static pages" do
       #expect(page).not_to have_title('| Home')
     #end
     it { should_not have_title('| Home') }
+
+    # Check that a signed in user it displays the feed
+    describe "for signed-in users" do
+      # Create the user and then add in some microposts and go to the home page
+      let(:user) { FactoryGirl.create(:user) }
+      before do
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        sign_in user
+        visit root_path
+      end
+
+      # Check it displays the feed
+      it "should render the user's feed" do
+        user.feed.each do |item|
+          # The first # is syntax for CSS id (from Capybara) and the second # 
+          # is for Ruby's string interpolation
+          expect(page).to have_selector("li##{item.id}", text: item.content)
+        end
+      end
+    end
   end
 
   #Below is describign the Help page

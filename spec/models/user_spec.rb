@@ -11,6 +11,8 @@ describe User do
   #Makes sure that these attributes are valid and are present 
   #Usually included so that we know what attributes the model can use
   #These methods use  the .respond_to? method
+  # THese test of the existance of the attributes, not that they contain the
+  # correct information
   it { should respond_to(:name) }
   it { should respond_to(:email) }
   it { should respond_to(:password_digest) }
@@ -18,6 +20,9 @@ describe User do
   it { should respond_to(:password_confirmation) }
   it {should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
+  it { should respond_to(:admin) }
+  it { should respond_to(:microposts) }
+  it { should respond_to(:feed) }
 
   # Checking that the object @user is actually valid (and that we have not
   # forgotten anything). Any be_something will also respond with something?
@@ -164,4 +169,63 @@ describe User do
     # than the subject indicated
     its(:remember_token) { should_not be_blank }
   end 
+
+  # Looks ath te microposts for the test user
+  describe "micropost associations" do
+    # Save the user before we do anything
+    before { @user.save }
+
+    # Create an old micropsot 
+    # We use let! because we want @older_micropost to exist immiditly, usually
+    # let variabels only exist when referenced
+    let!(:older_micropost) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
+    end
+
+    # Cerating a newer micropost
+    let!(:newer_micropost) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.hour.ago)
+    end
+
+    # Check the orde rof the microposts since we have a new nad old one
+    it "should have the right microposts in the right order" do
+      # This indicated that hte posts hsould be ordered newest first, by
+      # default pots will be ordered by id
+      # This also checks that user,microposts is working by returning an
+      # array of microposts like it should
+      # to_a returns the microposts to a propery array we can use
+      expect(@user.microposts.to_a).to eq [newer_micropost, older_micropost]
+    end
+
+    # Check that microposts are destroyed when removing a user
+    it "should destroy associated microposts" do
+      # Saves all the micrposts for the user
+      microposts = @user.microposts.to_a
+
+      # Delete/destroy the user
+      @user.destroy
+
+      # Check that we still ahve hte microposts we saved
+      expect(microposts).not_to be_empty
+
+      # Go through each micropost to make sure all the ones we saved are no
+      # longer in the database
+      microposts.each do |micropost|
+        expect(Micropost.where(id: micropost.id)).to be_empty
+      end
+    end
+
+    # WE are testing that hte feed on the  home page has the user's microposts
+    # and any microposts from anyone they follow
+    describe "status" do
+      let(:unfollowed_post) do
+        FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
+      end
+
+      # Check that the array has the element given
+      its(:feed) { should include(newer_micropost) }
+      its(:feed) { should include(older_micropost) }
+      its(:feed) { should_not include(unfollowed_post) }
+    end
+  end
 end

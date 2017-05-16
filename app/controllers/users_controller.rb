@@ -24,6 +24,9 @@ class UsersController < ApplicationController
 		# using User.find(#) since params[:id] is the # value, find converts
 		# it to an int for us
 		@user = User.find(params[:id])
+
+		# Gets the micrposts for this user
+		@microposts = @user.microposts.paginate(page: params[:page])
 	end
 
 	def new
@@ -89,13 +92,14 @@ class UsersController < ApplicationController
 	############ Basic filters so that we go to correct pages
 
 	# This is to redurect ot he sign in page if they are uncessful signing in
-	def signed_in_user
+	############NOW IN THE HELPERS AS MANY CONTROLLERS NEED IT
+	#def signed_in_user
 		# redirect_to is a short form for setting flash[:notice] and then
 		# redirecting ot hte given url. Notice is a yellow box
 		# NOTE: this does not work fro :error or :success
-		store_location
-    	redirect_to signin_url, notice: "Please sign in." unless signed_in?
-    end
+		#store_location
+    	#redirect_to signin_url, notice: "Please sign in." unless signed_in?
+    #end
 
     # Checks that the user is the correct one that is isgned in 
     def correct_user

@@ -1,0 +1,10 @@
+<!--Creates the form for creating micropost-->
+<%= form_for(@micropost) do |f| %>
+	<!-- we need to have the message work for any object (not jsut @user)
+		f in this case is @micropost-->
+  <%= render 'shared/error_messages', object: f.object %>
+  <div class="field">
+    <%= f.text_area :content, placeholder: "Compose new micropost..." %>
+  </div>
+  <%= f.submit "Post", class: "btn btn-large btn-primary" %>
+<% end %>

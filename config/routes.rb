@@ -9,6 +9,9 @@ SampleApp::Application.routes.draw do
   # other actions
   resources :sessions, only: [:new, :create, :destroy]
 
+  # This will allow us to create and destroy microposts 
+  resources :microposts, only: [:create, :destroy]
+
   #This requests the URL 'static_pages/home' which corresponds ot hte home action from StaticPages
   #We use 'get' because we want to use the GET protocol
   #get "static_pages/home"
@@ -24,7 +27,6 @@ SampleApp::Application.routes.draw do
   match '/help', to: 'static_pages#help', via: 'get'
   match '/about', to: 'static_pages#about', via: 'get'
   match '/contact', to: 'static_pages#contact', via: 'get'
-  #match '/users', to: 'users#index', via: 'get'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
