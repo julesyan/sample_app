@@ -49,6 +49,11 @@ module SessionsHelper
 	    @current_user ||= User.find_by(remember_token: remember_token)
 	 end
 
+	# Checks that the current user is the user we are dealing with
+	def current_user?(user)
+		user == current_user
+	end
+
 	# To sign a user out, first we change the token (because the cookie could
 	# have been stolen and can currently still be used to authorize someone),
 	# then we use the delete function to delete the cookie from the user's 
@@ -61,5 +66,18 @@ module SessionsHelper
 		# Remove the cookie from the browser
 		cookies.delete(:remember_token)
 		self.current_user = nil
+	end
+
+	# We store the location we are coming from and redirect to the needed page
+	# and make sure we can go to the original desired apge
+	def redirect_back_or(default)
+		# We go the the given URL if it eists or the defult one
+		redirect_to(session[:return_to] || default)
+		session.delete(:return_to)
+	end
+	def store_location
+		# Sessiosn are similar to cookies but expire o nbrowser close
+		# We store the URL in the sesion variable
+		session[:return_to] = request.url if request.get?
 	end
 end

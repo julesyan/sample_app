@@ -18,7 +18,9 @@ class SessionsController < ApplicationController
 			# Plan: when successfully signing in, we call the sign_in function
 			# 		and  then redirect to their profile page
 			sign_in user
-			redirect_to user
+			#redirect_to user
+			# Redirect to the previous page or the default URL
+			redirect_back_or user
 		else
 			# Otherwise we must show an error message and rerender the sign in 
 			# form for them to retry (Bootstrap gives the error message nice

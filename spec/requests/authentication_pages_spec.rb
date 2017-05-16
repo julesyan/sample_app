@@ -50,14 +50,19 @@ describe "Authentication" do
 				#fill_in "Password", with: user.password
 				#click_button "Sign in"
 			#end
-			before { valid_signin(user) }
+			#before { valid_signin(user) }
+
+			# Uses a sign_in function for tests
+			before { sign_in user }
 
 			# This is what should appear on the page after signing in 
 			it { should have_title(user.name) }
 			# have_link takes the text of hte link and the URL as href. This 
 			# function makes sure that the given line exists in the result 
 			# page and that it links to the correct URLs
+			it { should have_link('Users',       href: users_path) }
 			it { should have_link('Profile',     href: user_path(user)) }
+      		it { should have_link('Settings',    href: edit_user_path(user)) }
 			it { should have_link('Sign out',    href: signout_path) }
 			it { should_not have_link('Sign in', href: signin_path) }
 
@@ -66,6 +71,102 @@ describe "Authentication" do
 				before { click_link "Sign out" }
 				it { should have_link('Sign in') }
 			end
-    end
+    	end
+  	end
+
+  	describe "authorization" do
+
+	    describe "for non-signed-in users" do
+	    	let(:user) { FactoryGirl.create(:user) }
+
+	    	# If visiting edit or update
+			describe "when attempting to visit a protected page" do
+				# Go to the edit page which should redirect ot sign in and 
+				# then sign in with corect informaiton
+				before do
+					visit edit_user_path(user)
+					fill_in "Email",    with: user.email
+					fill_in "Password", with: user.password
+					click_button "Sign in"
+				end
+
+				# We should now see the edit page for the new signed in user
+				describe "after signing in" do
+					it "should render the desired protected page" do
+						expect(page).to have_title('Edit user')
+					end
+				end
+			end
+
+	    	describe "in the Users controller" do
+		      	# Visit the edit page to make sure it redirects to sign in if we are
+		      	# not signed in
+		        describe "visiting the edit page" do
+		          before { visit edit_user_path(user) }
+		          it { should have_title('Sign in') }
+		        end
+
+		        # If we submit an update make sure we go back to sign in since we are
+		        # not signed in to compelte this action
+		        describe "submitting to the update action" do
+		        	# Issues a pathc request to access a controlelr aciton
+		        	# issues request to /users/# which goes to the update action of
+		        	# the controller. 
+		        	# Note: to get ot an update we need to submit a form so we have
+		        	# 		to get there indirectly (because going through the edit
+		        	# 		page would need authorization) so we submit a direct 
+					# 		request
+					before { patch user_path(user) }
+					specify { expect(response).to redirect_to(signin_path) }
+		        end
+
+		        # We test that index action is protected and goe to sign in 
+		        # page if not signed in 
+		        describe "visiting the user index" do
+					before { visit users_path }
+					it { should have_title('Sign in') }
+				end
+		    end
+    	end
+
+    	# Checking we can only edit hte pages of a correct user
+    	describe "as wrong user" do
+			let(:user) { FactoryGirl.create(:user) }
+			# we are now creating a second user who is the same same as the 
+			# first but with an incorect email
+			let(:wrong_user) { FactoryGirl.create(:user, email: "wrong@example.com") }
+			
+			# we are setting capybara to true so we can get the GET and PATCH
+			# methods to hit hte edit and update directyl
+			# sign in with the correct user
+			before { sign_in user, no_capybara: true }
+
+			# goes to the edit page with the wrong user as the parameters and
+			# the original user should not have access to the second user's pg 
+			describe "submitting a GET request to the Users#edit action" do
+				before { get edit_user_path(wrong_user) }
+				specify { expect(response.body).not_to match(full_title('Edit user')) }
+				specify { expect(response).to redirect_to(root_url) }
+			end
+
+			# goes to the udpate page as the wrong user and should redirect
+			describe "submitting a PATCH request to the Users#update action" do
+				before { patch user_path(wrong_user) }
+				specify { expect(response).to redirect_to(root_url) }
+			end
+   		end
+
+   		# If user is not an admin they shoudl not be able to delet anyone
+   		describe "as non-admin user" do
+			let(:user) { FactoryGirl.create(:user) }
+			let(:non_admin) { FactoryGirl.create(:user) }
+
+			before { sign_in non_admin, no_capybara: true }
+
+			describe "submitting a DELETE request to the Users#destroy action" do
+				before { delete user_path(user) }
+				specify { expect(response).to redirect_to(root_url) }
+			end
+    	end
   	end
 end

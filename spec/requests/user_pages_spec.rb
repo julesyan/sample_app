@@ -70,5 +70,106 @@ describe "User pages" do
 					text: 'Welcome') }
 			end
 	    end
-  end
+ 	end
+
+ 	describe "edit" do
+	    let(:user) { FactoryGirl.create(:user) }
+	    before do
+	    	# Sign in the user with valid information
+	    	sign_in user
+	    	visit edit_user_path(user) 
+	    end
+
+	    describe "page" do
+	      it { should have_content("Update your profile") }
+	      it { should have_title("Edit user") }
+	      it { should have_link('change', href: 'http://gravatar.com/emails') }
+	    end
+
+	    describe "with invalid information" do
+	      before { click_button "Save changes" }
+
+	      it { should have_content('error') }
+		end
+
+		describe "with valid information" do
+			# Creating a new user
+			let(:new_name)  { "New Name" }
+			let(:new_email) { "new@example.com" }
+			# Fill in the form with new informaiton
+			before do
+				fill_in "Name",             with: new_name
+				fill_in "Email",            with: new_email
+				fill_in "Password",         with: user.password
+				fill_in "Confirm Password", with: user.password
+				click_button "Save changes"
+			end
+
+			# Check the new page has hte right elements
+			it { should have_title(new_name) }
+			it { should have_selector('div.alert.alert-success') }
+			it { should have_link('Sign out', href: signout_path) }
+
+			# Reload hte user variable to make sure things were changed
+			specify { expect(user.reload.name).to  eq new_name }
+			specify { expect(user.reload.email).to eq new_email }
+		end
+  	end
+
+  	# When we are displaying all users
+  	describe "index" do
+  		# Sign in to a user nad go to the correct link
+	    before do
+			sign_in FactoryGirl.create(:user)
+			FactoryGirl.create(:user, name: "Bob", email: "bob@example.com")
+			FactoryGirl.create(:user, name: "Ben", email: "ben@example.com")
+			visit users_path
+	    end
+
+	    # Check the page
+	    it { should have_title('All users') }
+	    it { should have_content('All users') }
+
+	    # Make sure the users are listed in pages
+	    describe "pagination" do
+			before(:all) { 30.times { FactoryGirl.create(:user) } }
+			after(:all)  { User.delete_all }
+
+			it { should have_selector('div.pagination') }
+
+			it "should list each user" do
+				User.paginate(page: 1).each do |user|
+					expect(page).to have_selector('li', text: user.name)
+				end
+			end
+		end
+
+		describe "delete links" do
+			it { should_not have_link('delete') }
+
+			describe "as an admin user" do
+				let(:admin) { FactoryGirl.create(:admin) }
+				before do
+					sign_in admin
+					visit users_path
+				end
+
+				it { should have_link('delete', href: user_path(User.first)) }
+				it "should be able to delete another user" do
+					expect do
+						click_link('delete', match: :first)
+					end.to change(User, :count).by(-1)
+				end
+					it { should_not have_link('delete', href: user_path(admin)) }
+			end
+		end
+
+	    # Make sure all teh users are listed 
+		#it "should list each user" do
+			# User.all grabs all the users from the database into @users
+			#User.all.each do |user|
+				#expect(page).to have_selector('li', text: user.name)
+			#end
+		#end
+	end
 end

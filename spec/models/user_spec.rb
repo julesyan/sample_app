@@ -22,6 +22,17 @@ describe User do
   # Checking that the object @user is actually valid (and that we have not
   # forgotten anything). Any be_something will also respond with something?
   it { should be_valid } 
+  it { should_not be_admin }
+
+  # If we are an admin, check certain things
+  describe "with admin attribute set to 'true'" do
+    before do
+      @user.save!
+      @user.toggle!(:admin)
+    end
+
+    it { should be_admin }
+  end
 
   # Sets the name to be blank (invalid) and tests that the object is actually
   # set as invalid (checking htat validation is acutally working since if 
