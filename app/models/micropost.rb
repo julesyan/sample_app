@@ -15,4 +15,12 @@ class Micropost < ActiveRecord::Base
 
 	# Makes sure the content in the post has content that is less than 140char
 	validates :content, presence: true, length: { maximum: 140 }
+
+	# Returns microposts from the users being followed by the given user.
+	def self.from_users_followed_by(user)
+		followed_user_ids = user.followed_user_ids
+	    #where("user_id IN (?) OR user_id = ?", followed_user_ids, user)
+		where("user_id IN (:followed_user_ids) OR user_id = :user_id",
+		      followed_user_ids: followed_user_ids, user_id: user)
+	end
 end

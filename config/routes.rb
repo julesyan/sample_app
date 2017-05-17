@@ -1,8 +1,12 @@
 SampleApp::Application.routes.draw do
   # This will allow us to access the users in a REST-style way (/user/#) 
   # which includes the /user/new
-  resources :users
-  #get "users/new"
+  resources :users do
+    #get "users/new"
+    member do
+      get :following, :followers
+    end
+  end
 
   # This will define new routes for the sessions (sign in and out sessions). 
   # This will restrict us to new, create and destroy since we dont want any 
@@ -11,6 +15,7 @@ SampleApp::Application.routes.draw do
 
   # This will allow us to create and destroy microposts 
   resources :microposts, only: [:create, :destroy]
+  resources :relationships, only: [:create, :destroy]
 
   #This requests the URL 'static_pages/home' which corresponds ot hte home action from StaticPages
   #We use 'get' because we want to use the GET protocol

@@ -4,6 +4,32 @@ class User < ActiveRecord::Base
 	# destroyed alongside the user being destroyed
 	has_many :microposts, dependent: :destroy
 
+	# Create an association between the user and the people they follow and 
+	# the people that follow them
+	# Any tiem you destroy a user you should also destroy all the user
+	# relationshipd associated with the user
+	has_many :relationships, foreign_key: "follower_id", dependent: :destroy
+
+	# The reverse_relatshionship table uses the original relationship table
+	# and makes use of symmetry by setting the other id (followed_id) as
+	# the foreign key
+	has_many :reverse_relationships, foreign_key: "followed_id", 
+										# This has to be given because it 
+										# would look for ReverseRelationship
+										# class otherwise
+									 class_name: "Relationship",
+									 dependent: :destroy
+	# We could omit source because Rails will recognize the singular of 
+	# followers is follower but is kept just to see it in comparison with
+	# the follower_users association
+	has_many :followers, through: :reverse_relationships, source: :follower
+
+	# A user has many following thorugh relationships. By defult Rails looks
+	# for the key corresponding to the singular version of the symbol given
+	# which would grammerically incorrect in this case so we change the defult
+	# to follower_users (this is opposed to followeds)
+	has_many :followed_users, through: :relationships, source: :followed
+
 	# Makes the email all lower case before saving to the database because
 	# not all databases use case sensitive indices. This function is a spcial
 	# callback function that is caleld during a certain point in the record
@@ -72,7 +98,25 @@ class User < ActiveRecord::Base
 		# This is preliminary. See "Following users" for the full implementation.
 		# This will escape the variable injected into the SQL which is what
 		# we should always do when inserting variables into SQL
-		Micropost.where("user_id = ?", id)
+		#Micropost.where("user_id = ?", id)
+		Micropost.from_users_followed_by(self)
+	end
+
+	# Checks to see if a followed user with the id of the other_user exists. 
+	# This would mean that other_user has people following them
+	def following?(other_user)
+		relationships.find_by(followed_id: other_user.id)
+	end
+
+	# This creates a relationship between the user and other_user where user
+	# follows other_user
+	def follow!(other_user)
+		relationships.create!(followed_id: other_user.id)
+	end
+
+	# Find the relationship (the person the user is following) and destroy it
+	def unfollow!(other_user)
+		relationships.find_by(followed_id: other_user.id).destroy
 	end
 
 	# Below is all the methods which are private and only used by this class
